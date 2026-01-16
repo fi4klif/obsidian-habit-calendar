@@ -17,12 +17,12 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 
 	const startDate = useMemo(() => {
 		const date = new Date(year, month, 1);
-		return date.toISOString().split("T")[0];
+		return date.toISOString().split("T")[0]!;
 	}, [year, month]);
 
 	const endDate = useMemo(() => {
 		const date = new Date(year, month + 1, 0);
-		return date.toISOString().split("T")[0];
+		return date.toISOString().split("T")[0]!;
 	}, [year, month]);
 
 	const goToPreviousMonth = () => {
