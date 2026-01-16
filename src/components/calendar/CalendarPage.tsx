@@ -68,25 +68,10 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 					};
 					return newData;
 				} else {
-					const newActivity: Record<string, string | number> = {
-						date: variables.date,
-						[variables.activity]: 1,
-					};
-					return [...old, newActivity];
-				}
-			});
-
-			return { previousData };
-		},
-		onError: (error, variables, context) => {
-			if (context?.previousData) {
-				utils.calendar.getActivities.setData(
-					{ startDate, endDate },
-					context.previousData,
-				);
-			}
-			toast.error("Failed to update activity", { position: "top-left" });
-		},
+				const newActivity = {
+					date: variables.date,
+					[variables.activity]: 1,
+				} as { date: string };
 		onSettled: () => {
 			utils.calendar.getActivities.invalidate({ startDate, endDate });
 		},
