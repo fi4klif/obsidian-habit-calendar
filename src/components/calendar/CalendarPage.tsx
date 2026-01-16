@@ -5,8 +5,10 @@ import { useToast } from "~/hooks/useToast";
 import { MdRefresh, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { calendarsConfig, allActivityKeys } from "~/config/calendars";
 
+type ActivityData = { date: string } & Record<string, string | number>;
+
 interface CalendarPageProps {
-	initialActivities: any[];
+	initialActivities: ActivityData[];
 }
 
 export default function CalendarPage({ initialActivities }: CalendarPageProps) {
@@ -57,23 +59,29 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 				if (!old) return old;
 
 				const existingIndex = old.findIndex(
-					(item: any) => item.date === variables.date,
+					(item) => item.date === variables.date,
 				);
 				if (existingIndex !== -1) {
 					const newData = [...old];
+					const currentItem = newData[existingIndex] as ActivityData & Record<string, any>;
+					const existingValue = currentItem?.[variables.activity] as number | undefined;
 					newData[existingIndex] = {
 						...newData[existingIndex],
-						[variables.activity]:
-							newData[existingIndex][variables.activity] === 1 ? 0 : 1,
-					};
+						[variables.activity]: existingValue === 1 ? 0 : 1,
+					} as ActivityData;
 					return newData;
-				} else {
-				const newActivity = {
+				}
+				const newActivity: ActivityData = {
 					date: variables.date,
 					[variables.activity]: 1,
-				} as { date: string };
+				};
+				return [...old, newActivity];
+			});
+
+			return { previousData };
+		},
 		onSettled: () => {
-			utils.calendar.getActivities.invalidate({ startDate, endDate });
+			void utils.calendar.getActivities.invalidate({ startDate, endDate });
 		},
 	});
 
@@ -84,9 +92,14 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 			maps[key] = {};
 		});
 
-		activities.forEach((activity: any) => {
+		activities.forEach((activity) => {
 			allActivityKeys.forEach((key) => {
-				maps[key][activity.date] = activity[key] === 1;
+				const dateKey = activity.date as string;
+				const val = (activity as any)[key] as number | undefined;
+				const mapRecord = maps[key];
+				if (mapRecord) {
+					mapRecord[dateKey] = val === 1;
+				}
 			});
 		});
 
@@ -98,9 +111,9 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 		date: string,
 		currentState: string | null,
 	) => {
-		if (!currentState) {
-			toggleMutation.mutate({ date, activity: calendarOptions[0] });
-		} else {
+		if (!currentState && calendarOptions.length > 0) {
+			toggleMutation.mutate({ date, activity: calendarOptions[0]! });
+		} else if (currentState) {
 			const currentIndex = calendarOptions.indexOf(currentState);
 			const nextIndex = (currentIndex + 1) % (calendarOptions.length + 1);
 
@@ -108,7 +121,7 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 
 			if (nextIndex < calendarOptions.length) {
 				setTimeout(() => {
-					toggleMutation.mutate({ date, activity: calendarOptions[nextIndex] });
+					toggleMutation.mutate({ date, activity: calendarOptions[nextIndex]! });
 				}, 50);
 			}
 		}
