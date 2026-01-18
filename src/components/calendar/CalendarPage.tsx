@@ -63,15 +63,15 @@ export default function CalendarPage({ initialActivities }: CalendarPageProps) {
 				);
 				if (existingIndex !== -1) {
 					const newData = [...old];
-					const currentItem = newData[existingIndex] as ActivityData & Record<string, any>;
+					const currentItem = newData[existingIndex] as Record<string, string | number>;
 					const existingValue = currentItem?.[variables.activity] as number | undefined;
 					newData[existingIndex] = {
 						...newData[existingIndex],
 						[variables.activity]: existingValue === 1 ? 0 : 1,
-					} as ActivityData;
+					};
 					return newData;
 				}
-				const newActivity: ActivityData = {
+				const newActivity: Record<string, string | number> = {
 					date: variables.date,
 					[variables.activity]: 1,
 				};

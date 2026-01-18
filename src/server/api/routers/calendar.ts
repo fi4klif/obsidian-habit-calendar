@@ -12,7 +12,7 @@ export const calendarRouter = createTRPCRouter({
         endDate: z.string(),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }): Promise<(Record<string, string | number>)[]> => {
       const rows = await ctx.db
         .select()
         .from(activities)
